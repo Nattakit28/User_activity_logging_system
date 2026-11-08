@@ -1,6 +1,7 @@
 
 # =====================================
-# GITLAB CI/CD - VITE + REACT
+# GITLAB CI/CD
+# VITE + REACT + REACT ROUTER
 # =====================================
 
 image: node:22
@@ -15,18 +16,19 @@ stages:
 cache:
   key:
     files:
-      - package-lock.json
+      - frontend/package-lock.json
   paths:
-    - node_modules/
+    - frontend/node_modules/
 
 # =====================================
 # DEPLOY TO GITLAB PAGES
 # =====================================
 
-deploy-pages:
+pages:
   stage: deploy
 
   script:
+    - cd frontend
     - echo "Installing dependencies..."
     - npm ci
 
@@ -40,11 +42,7 @@ deploy-pages:
     - ls -lh dist/
 
   pages:
-    publish: dist
-
-  environment:
-    name: production
-    url: $CI_PAGES_URL
+    publish: frontend/dist
 
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
