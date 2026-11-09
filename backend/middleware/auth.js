@@ -6,18 +6,40 @@ const verifyToken = (req, res, next) => {
   const token = authHeader?.split(' ')[1];
 
   if (!token) {
-    console.warn('⚠️  AUTH FAILED: No token provided for', req.method, req.path);
-    return res.status(401).json({ error: 'Token is required' });
+    return res.status(401).json({
+      error: 'Token is required'
+    });
+  }
+
+  if (!process.env.JWT_SECRET) {
+    console.error('❌ JWT_SECRET is not configured');
+
+    return res.status(500).json({
+      error: 'Server configuration error'
+    });
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    );
+
+    if (!decoded.id) {
+      return res.status(401).json({
+        error: 'Invalid token payload'
+      });
+    }
+
     req.userId = decoded.id;
-    console.log(`✅ Token verified for user ID: ${decoded.id}`);
     next();
+
   } catch (error) {
     console.error('❌ AUTH ERROR:', error.message);
-    res.status(401).json({ error: 'Invalid or expired token' });
+
+    return res.status(401).json({
+      error: 'Invalid or expired token'
+    });
   }
 };
 
