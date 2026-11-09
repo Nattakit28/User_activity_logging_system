@@ -1,7 +1,14 @@
 const mongoose = require('mongoose');
 
+
 async function connectDB() {
   try {
+    if (!process.env.MONGODB_URI) {
+      throw new Error('MONGODB_URI is missing');
+    }
+
+    console.log('🔍 MongoDB URI exists:', !!process.env.MONGODB_URI);
+
     await mongoose.connect(process.env.MONGODB_URI);
 
     console.log('✅ Connected to MongoDB Atlas');
